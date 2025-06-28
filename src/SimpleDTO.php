@@ -358,7 +358,30 @@ abstract class SimpleDTO implements BaseDTO, CastsAttributes, JsonSerializable
         $validatedProperties = $this->getPropertiesForAttribute($publicProperties, Rules::class);
         foreach ($validatedProperties as $property => $attribute) {
             $attributeInstance = $attribute->newInstance();
-            $this->dtoRules[$property] = $attributeInstance->rules;
+
+            $rules = $attributeInstance->rules;
+            $rulesWithSpecifiedProperty = [];
+
+            if (is_array($rules)) {
+                $rules = array_filter($rules, function (string $rule, int|string $key) use (&$rulesWithSpecifiedProperty) {
+                    if (is_string($key)) {
+                        $rulesWithSpecifiedProperty[$key] = $rule;
+
+                        return false;
+                    }
+
+                    return true;
+                }, ARRAY_FILTER_USE_BOTH);
+            }
+
+            $this->dtoRules[$property] = $rules;
+
+            if (! empty($rulesWithSpecifiedProperty)) {
+                foreach ($rulesWithSpecifiedProperty as $key => $rule) {
+                    $this->dtoRules[$property . '.' . $key] = $rule;
+                }
+            }
+
             $this->dtoMessages[$property] = $attributeInstance->messages ?? [];
         }
 

@@ -18,6 +18,7 @@ it('instantiates a ValidatedDTO validating its data using the Rules attribute an
     $userDTO = new UserAttributesDTO([
         'name' => $this->subject_name,
         'email' => $this->subject_email,
+        'grades' => [10.0, 20.0],
     ]);
 
     expect($userDTO)->toBeInstanceOf(UserAttributesDTO::class)
@@ -25,10 +26,22 @@ it('instantiates a ValidatedDTO validating its data using the Rules attribute an
         ->toBe([
             'name' => $this->subject_name,
             'email' => $this->subject_email,
+            'grades' => [10.0, 20.0],
             'active' => true,
         ])
         ->and($userDTO->validator->passes())
         ->toBeTrue();
+});
+
+it('throws exception when validating item of array', function () {
+    $data = [
+        'name' => $this->subject_name,
+        'email' => $this->subject_email,
+        'grades' => ['bad item'],
+    ];
+
+    expect(fn () => new UserAttributesDTO($data))
+        ->toThrow(ValidationException::class);
 });
 
 it('maps the DTO data using the Map attribute', function () {

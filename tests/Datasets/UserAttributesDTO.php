@@ -37,7 +37,7 @@ class UserAttributesDTO extends ValidatedDTO
     #[Cast(IntegerCast::class)]
     public ?int $age;
 
-    #[Rules(['sometimes', 'array'])]
+    #[Rules(['sometimes', 'array', '*' => 'numeric'])]
     #[Cast(type: ArrayCast::class, param: FloatCast::class)]
     public ?array $grades;
 }
